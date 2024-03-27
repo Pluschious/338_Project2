@@ -30,7 +30,7 @@ public class RegularExpression {
 
         //Adds transitions from the new start state to the start state of nfa1 and nfa2
         HashMap<Character, HashSet<String>> transition = new HashMap<>();
-        transition.put('e', new HashSet<>(Arrays.asList(nfa1.getStartState(), nfa2.getStartState())));
+        transition.put('U', new HashSet<>(Arrays.asList(nfa1.getStartState(), nfa2.getStartState())));
         transitions.put("SU", transition);
 
         //copies the transitions from nfa1 and nfa2
@@ -60,7 +60,8 @@ public class RegularExpression {
 
         //adds epsilon transition from the accept state of nfa1 to start state of nfa2
         for (String acceptState : nfa1.getAcceptStates()) {
-            transitions.get(acceptState).computeIfAbsent('e', k -> new HashSet<>()).add(nfa2.getStartState());
+            transitions.computeIfAbsent(acceptState, k -> new HashMap<>()).computeIfAbsent('e', k -> new HashSet<>()).add(nfa2.getStartState());
+            
         }
 
         //copies transitions from nfa2
@@ -82,8 +83,6 @@ public class RegularExpression {
 
         HashMap<String, HashMap<Character, HashSet<String>>> transitions = new HashMap<>(nfa.getTransitions());
 
-        //epsilon transition from new start state to origional start state and each accept state to original start state
-        transitions.computeIfAbsent("SS", k -> new HashMap<>()).put('e', new HashSet<>(Arrays.asList(nfa.getStartState(), "SS")));
         for (String acceptState : nfa.getAcceptStates()) {
             transitions.get(acceptState).computeIfAbsent('e', k -> new HashSet<>()).add(nfa.getStartState());
 
@@ -103,9 +102,6 @@ public class RegularExpression {
 
         HashMap<String, HashMap<Character, HashSet<String>>> transitions = new HashMap<>(nfa.getTransitions());
 
-        //epsilon transition from the new start state to original start state
-        transitions.computeIfAbsent("SP", k -> new HashMap<>()).put('e', new HashSet<>(Arrays.asList(nfa.getStartState())));
-
         return new NFA(states, alphabet, transitions, "SP", nfa.getAcceptStates());
     }
 
@@ -115,7 +111,7 @@ public class RegularExpression {
         char[] alphabet = new char[]{c};
         HashMap<String, HashMap<Character, HashSet<String>>> transitions = new HashMap<>();
         transitions.put("A", new HashMap<>());
-        transitions.get("A").put(c, new HashSet<>(Arrays.asList("B")));
+        transitions.get("A").put(c, new HashSet<>(Arrays.asList("B","A")));
         transitions.put("B", new HashMap<>());
 
         return new NFA(states, alphabet, transitions, "A", new String[]{"B"});
